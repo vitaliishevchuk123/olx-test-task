@@ -1,0 +1,19 @@
+{
+    "name": "sheva/olx-test-task",
+    "type": "project",
+    "description": "Olx price checker",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "filp/whoops": "^2.15",
+        "symfony/dotenv": "^v6.3.0",
+        "doctrine/dbal": "3.7.1"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^6.3"
+    }
+}

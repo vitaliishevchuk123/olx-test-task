@@ -1,0 +1,68 @@
+#!/usr/bin/env php
+
+<?php
+
+use App\Dbal\ConnectionFactory;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Schema;
+use Symfony\Component\Dotenv\Dotenv;
+
+require_once 'vendor/autoload.php';
+
+$dotenv = new Dotenv();
+$dotenv->load('.env');
+
+//Створення БД
+$conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql = "CREATE DATABASE IF NOT EXISTS {$_ENV['DB_DATABASE']}";
+if ($conn->query($sql) === TRUE) {
+    echo "Database created successfully";
+} else {
+    echo "Error creating database: " . $conn->error;
+}
+$conn->close();
+
+// Application parameters
+$appEnv = $_ENV['APP_ENV'] ?? 'local';
+
+$connectionParams = [
+    'dbname' => $_ENV['DB_DATABASE'],
+    'user' => $_ENV['DB_USERNAME'],
+    'password' => $_ENV['DB_PASSWORD'],
+    'host' => $_ENV['DB_HOST'] . ':' . $_ENV['DB_PORT'],
+    'driver' => $_ENV['DB_DRIVER'],
+];
+
+// Application services
+if ($_ENV['APP_ENV'] === 'local') {
+    $whoops = new Whoops\Run;
+    $whoops->pushHandler(new Whoops\Handler\PrettyPageHandler);
+    $whoops->register();
+}
+
+
+/** @var Connection $connection */
+$connection = (new ConnectionFactory($connectionParams))->create();
+$schema = new Schema();
+
+$migrationsPath = "database/migrations";
+$migrationFiles = scandir($migrationsPath);
+$filteredFiles = array_filter($migrationFiles, function ($fileName) {
+    return !in_array($fileName, ['.', '..']);
+});
+$migrationsToApply = array_values($filteredFiles);
+
+foreach ($migrationsToApply as $migration) {
+    $migrationInstance = require $migrationsPath . "/$migration";
+    $migrationInstance->up($schema);
+}
+
+//Виконати SQL-запит
+$sqlArray = $schema->toSql($connection->getDatabasePlatform());
+
+foreach ($sqlArray as $sql) {
+    $connection->executeQuery($sql);
+}
