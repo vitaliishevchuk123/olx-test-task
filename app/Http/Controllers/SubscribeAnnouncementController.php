@@ -19,9 +19,12 @@ class SubscribeAnnouncementController extends AbstractController
                 $request->input('url'),
                 $request->input('name'),
             )->validate();
+
         if ($form->hasValidationErrors()) {
             $this->errorResponse($form->getValidationErrors());
         }
+
+        //1. Перевірка(якщо нема збереження) юзера
         $user = (new UserRepository())->findByEmail($request->input('email'), $connection);
 
         if (!$user) {
@@ -32,7 +35,15 @@ class SubscribeAnnouncementController extends AbstractController
             );
             (new CreateUser())->handle($user, $connection);
         }
-        dd($user);
-        //TODO Юзер створено і збережено в базу, далі треба зберегти оголошення і звязку їхню в півот таблицю
+
+        //2. Перевірка(якщо нема збереження) оголошення
+        //3. Перевірка чи є звʼязка юзер - оголошення в БД(якщо нема створюємо)
+
+//        echo json_encode([
+//            'name'=> $user->getName(),
+//        ], JSON_UNESCAPED_UNICODE);
+        echo json_encode([
+            'message'=> "Користувача {$user->getName()} підписано на оголошення {$request->input('url')}",
+        ], JSON_UNESCAPED_UNICODE);
     }
 }

@@ -5,8 +5,8 @@ use App\Http\Request;
 use App\Http\Router;
 
 define('BASE_PATH', dirname(__DIR__));
-
 require_once BASE_PATH . '/vendor/autoload.php';
+
 $connection = require BASE_PATH . '/config/services.php';
 
 $request = Request::createFromGlobals();

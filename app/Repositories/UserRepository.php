@@ -18,11 +18,11 @@ class UserRepository
 
         $user = $result->fetchAssociative();
 
-        if (! $user) {
+        if (!$user) {
             return null;
         }
 
-        return User::create(
+        return User::fill(
             email: $user['email'],
             createdAt: new \DateTimeImmutable($user['created_at']),
             name: $user['name'],

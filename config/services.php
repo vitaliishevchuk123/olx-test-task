@@ -6,11 +6,6 @@ use Symfony\Component\Dotenv\Dotenv;
 $dotenv = new Dotenv();
 $dotenv->load(dirname(__DIR__) . '/.env');
 
-// Application parameters
-$basePath = dirname(__DIR__);
-
-$appEnv = $_ENV['APP_ENV'] ?? 'local';
-
 $connectionParams = [
     'dbname' => $_ENV['DB_DATABASE'],
     'user' => $_ENV['DB_USERNAME'],

@@ -13,7 +13,7 @@ class User
     {
     }
 
-    public static function fill(string $email, \DateTimeImmutable $createdAt = null, string $name = null, int $id = null): static
+    public static function fill(string $email, ?\DateTimeImmutable $createdAt = null, string $name = null, int $id = null): static
     {
         return new static($id, $name, $email, $createdAt ?? new \DateTimeImmutable());
     }

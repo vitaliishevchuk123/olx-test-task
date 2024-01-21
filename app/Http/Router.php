@@ -25,6 +25,7 @@ class Router
                 // Simple string comparison to see if the route URL matches the requested URL
                 if ($routeUrl === $url) {
                     call_user_func($target);
+                    return;
                 }
             }
         }
