@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateAnnouncement;
 use App\Actions\CreateUser;
+use App\Entities\Announcement;
 use App\Entities\User;
 use App\Forms\User\SubscribeAnnouncementForm;
 use App\Http\Request;
+use App\Repositories\AnnouncementRepository;
 use App\Repositories\UserRepository;
 use Doctrine\DBAL\Connection;
 
@@ -13,6 +16,7 @@ class SubscribeAnnouncementController extends AbstractController
 {
     public function subscribe(Request $request, Connection $connection)
     {
+        //1. Валідація даних за допомогою кастомного Form класу
         $form = (new SubscribeAnnouncementForm())
             ->setFields(
                 $request->input('email'),
@@ -24,7 +28,7 @@ class SubscribeAnnouncementController extends AbstractController
             $this->errorResponse($form->getValidationErrors());
         }
 
-        //1. Перевірка(якщо нема збереження) юзера
+        //2. Перевірка(якщо нема збереження) юзера
         $user = (new UserRepository())->findByEmail($request->input('email'), $connection);
 
         if (!$user) {
@@ -36,8 +40,19 @@ class SubscribeAnnouncementController extends AbstractController
             (new CreateUser())->handle($user, $connection);
         }
 
-        //2. Перевірка(якщо нема збереження) оголошення
-        //3. Перевірка чи є звʼязка юзер - оголошення в БД(якщо нема створюємо)
+        //3. Перевірка(якщо нема збереження) оголошення
+        $announcement = (new AnnouncementRepository())->findByUrl($request->input('url'), $connection);
+
+        if (!$announcement) {
+            $announcement = Announcement::fill(
+                url: $request->input('url'),
+                createdAt: new \DateTimeImmutable(),
+                price: $request->input('price'),
+            );
+            (new CreateAnnouncement())->handle($announcement, $connection);
+        }
+
+        //4. Перевірка чи є звʼязка юзер - оголошення в БД(якщо нема створюємо)
 
 //        echo json_encode([
 //            'name'=> $user->getName(),
