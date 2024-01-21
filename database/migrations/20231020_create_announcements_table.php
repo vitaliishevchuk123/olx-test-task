@@ -12,7 +12,7 @@ return new class {
             'unsigned' => true,
         ]);
         $table->addColumn('url', Types::STRING);
-        $table->addColumn('price', Types::INTEGER);
+        $table->addColumn('price', Types::INTEGER, ['notnull' => false]);
         $table->addColumn('created_at', Types::DATETIME_IMMUTABLE, [
             'default' => 'CURRENT_TIMESTAMP',
         ]);
@@ -21,6 +21,6 @@ return new class {
 
     public function down(Schema $schema): void
     {
-        //
+        $schema->dropTable('announcements');
     }
 };

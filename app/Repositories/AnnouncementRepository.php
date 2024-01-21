@@ -6,9 +6,13 @@ use Doctrine\DBAL\Connection;
 
 class AnnouncementRepository
 {
-    public function findByUrl(string $url, Connection $connection): ?Announcement
+    public function __construct(private Connection $connection)
     {
-        $queryBuilder = $connection->createQueryBuilder();
+    }
+
+    public function findByUrl(string $url): ?Announcement
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
 
         $result = $queryBuilder->select('*')
             ->from('announcements')

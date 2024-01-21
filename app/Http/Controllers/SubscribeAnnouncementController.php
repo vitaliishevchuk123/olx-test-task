@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AttachAnnouncementToUser;
 use App\Actions\CreateAnnouncement;
 use App\Actions\CreateUser;
 use App\Entities\Announcement;
@@ -29,7 +30,8 @@ class SubscribeAnnouncementController extends AbstractController
         }
 
         //2. Перевірка(якщо нема збереження) юзера
-        $user = (new UserRepository())->findByEmail($request->input('email'), $connection);
+        $userRepository = new UserRepository($connection);
+        $user = $userRepository->findByEmail($request->input('email'), $connection);
 
         if (!$user) {
             $user = User::fill(
@@ -41,7 +43,7 @@ class SubscribeAnnouncementController extends AbstractController
         }
 
         //3. Перевірка(якщо нема збереження) оголошення
-        $announcement = (new AnnouncementRepository())->findByUrl($request->input('url'), $connection);
+        $announcement = (new AnnouncementRepository($connection))->findByUrl($request->input('url'));
 
         if (!$announcement) {
             $announcement = Announcement::fill(
@@ -53,12 +55,17 @@ class SubscribeAnnouncementController extends AbstractController
         }
 
         //4. Перевірка чи є звʼязка юзер - оголошення в БД(якщо нема створюємо)
+        $userAnnouncements = $userRepository->getAnnouncements($user);
 
-//        echo json_encode([
-//            'name'=> $user->getName(),
-//        ], JSON_UNESCAPED_UNICODE);
-        echo json_encode([
-            'message'=> "Користувача {$user->getName()} підписано на оголошення {$request->input('url')}",
-        ], JSON_UNESCAPED_UNICODE);
+        if ($userAnnouncements->isEmpty() || !$userAnnouncements->where('id', $user->getId())->first()) {
+            (new AttachAnnouncementToUser())->handle($announcement, $user, $connection);
+            $this->successResponse([
+                'message' => "Користувача {$user->getName()} підписано на оголошення {$announcement->getUrl()}",
+            ]);
+        }
+
+        $this->errorResponse([
+            'error' => "Користувач  {$user->getName()}  вже підписаний на оголошення {$announcement->getUrl()}!",
+        ]);
     }
 }

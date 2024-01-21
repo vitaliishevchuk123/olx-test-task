@@ -13,4 +13,9 @@ return new class {
         $table->addColumn('created_at', Types::DATETIME_IMMUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->setPrimaryKey(['id']);
     }
+
+    public function down(Schema $schema): void
+    {
+        $schema->dropTable('users');
+    }
 };

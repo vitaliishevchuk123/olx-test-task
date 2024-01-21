@@ -20,7 +20,7 @@ class CreateAnnouncement
             ])
             ->setParameters([
                 'url' => $announcement->getUrl(),
-                'price' => $announcement->getPrice() ?? 0,
+                'price' => $announcement->getPrice(),
                 'created_at' => $announcement->getCreatedAt()->format('Y-m-d H:i:s'),
             ])->executeQuery();
 
