@@ -57,7 +57,7 @@ class SubscribeAnnouncementController extends AbstractController
         //4. Перевірка чи є звʼязка юзер - оголошення в БД(якщо нема створюємо)
         $userAnnouncements = $userRepository->getAnnouncements($user);
 
-        if ($userAnnouncements->isEmpty() || !$userAnnouncements->where('id', $user->getId())->first()) {
+        if ($userAnnouncements->isEmpty() || !$userAnnouncements->where('id', $announcement->getId())->first()) {
             (new AttachAnnouncementToUser())->handle($announcement, $user, $connection);
             $this->successResponse([
                 'message' => "Користувача {$user->getName()} підписано на оголошення {$announcement->getUrl()}",

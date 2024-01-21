@@ -11,9 +11,11 @@
         "php": "^8.2",
         "filp/whoops": "^2.15",
         "symfony/dotenv": "^v6.3.0",
-        "doctrine/dbal": "3.7.1"
-    },
-    "require-dev": {
-        "symfony/var-dumper": "^6.3"
+        "doctrine/dbal": "3.7.1",
+        "monolog/monolog": "^3.5",
+        "symfony/panther": "^2.1",
+        "symfony/var-dumper": "^6.3",
+        "dbrekelmans/bdi": "^1.1",
+        "weidner/goutte": "^2.3"
     }
 }

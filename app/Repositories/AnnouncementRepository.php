@@ -33,4 +33,27 @@ class AnnouncementRepository
             id: $announcement['id'],
         );
     }
+
+    public function all(): array
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $result = $queryBuilder->select('*')
+            ->from('announcements')
+            ->executeQuery();
+
+        $announcements = $result->fetchAllAssociative();
+
+        $announcementEntities = [];
+        foreach ($announcements as $announcement) {
+            $announcementEntities[] = Announcement::fill(
+                url: $announcement['url'],
+                createdAt: new \DateTimeImmutable($announcement['created_at']),
+                price: $announcement['price'],
+                id: $announcement['id'],
+            );
+        }
+
+        return $announcementEntities;
+    }
 }
