@@ -2,6 +2,8 @@
 namespace App\Repositories;
 
 use App\Entities\Announcement;
+use App\Entities\User;
+use App\Helpers\Collection;
 use Doctrine\DBAL\Connection;
 
 class AnnouncementRepository
@@ -55,5 +57,33 @@ class AnnouncementRepository
         }
 
         return $announcementEntities;
+    }
+
+    public function getUsers(Announcement $announcement): Collection
+    {
+        $users = new Collection();
+
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $queryBuilder->select('u.*')
+            ->from('announcement_user', 'au')
+            ->join('au', 'users', 'u', 'au.user_id = u.id')
+            ->where('au.announcement_id = :announcement_id')
+            ->setParameter('announcement_id', $announcement->getId());
+
+        $result = $queryBuilder->executeQuery();
+
+        // Assuming you have a method to hydrate the result into Announcement objects
+        while ($data = $result->fetchAssociative()) {
+            $user = User::fill(
+                email: $data['email'],
+                createdAt: new \DateTimeImmutable($data['created_at']),
+                name: $data['name'],
+                id: $data['id']
+            );
+            $users->add($user);
+        }
+
+        return $users;
     }
 }

@@ -4,7 +4,9 @@ namespace App\Parsers;
 
 use App\Actions\UpdateAnnouncementPrice;
 use App\Entities\Announcement;
+use App\Entities\User;
 use App\Helpers\Str;
+use App\Mail\MailHogMailer;
 use App\Repositories\AnnouncementRepository;
 
 class OlxPriceParser extends AbstractParser
@@ -37,6 +39,24 @@ class OlxPriceParser extends AbstractParser
             (new UpdateAnnouncementPrice)->handle($announcement, $price, $this->connection);
             dump("Оновлено ціну оголошення {$announcement->getUrl()} на {$priceText}");
             $this->logger->info("Оновлено ціну оголошення {$announcement->getUrl()} на {$priceText}");
+            $announcementUsers = (new AnnouncementRepository($this->connection))->getUsers($announcement);
+
+            /** @var User $user */
+            foreach ($announcementUsers->all() as $user) {
+                $mailer = new MailHogMailer(
+                    $user->getEmail(),
+                    "Оновлено ціну оголошення OLX",
+                    "Оновлено ціну оголошення {$announcement->getUrl()} на {$priceText}",
+                    "sender@example.com",
+                );
+                if ($mailer->send()) {
+                    dump("Лист успішно відправлено");
+                    $this->logger->info("Лист успішно відправлено");
+                } else {
+                    dump("Помилка при відправленні листа");
+                    $this->logger->info("Помилка при відправленні листа");
+                }
+            }
             return;
         }
 
