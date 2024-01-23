@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\SubscribeAnnouncementController;
 use App\Http\Request;
 use App\Http\Router;
